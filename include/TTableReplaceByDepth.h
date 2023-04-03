@@ -4,7 +4,7 @@
 #include <memory>
 #include <array>
 
-template<int mbSize>
+template<size_t mbSize>
 class TTableReplaceByDepth
 {
 private:
@@ -20,7 +20,7 @@ public:
 };
 
 
-template<int mbSize>
+template<size_t mbSize>
 const TTEntry * TTableReplaceByDepth<mbSize>::probe(const uint64_t key) const
 {
 	const TTEntry* tte = &table[static_cast<uint32_t>(key) % elements];
@@ -32,7 +32,7 @@ const TTEntry * TTableReplaceByDepth<mbSize>::probe(const uint64_t key) const
 	return nullptr;
 }
 
-template<int mbSize>
+template<size_t mbSize>
 void TTableReplaceByDepth<mbSize>::store(const uint64_t key, int16_t v, Bound type, uint16_t d, Move m)
 {
 	TTEntry *entry = &table[static_cast<uint32_t>(key) % elements];

@@ -1,45 +1,56 @@
 
 cmake_minimum_required(VERSION 3.0.0)
 
-set(MASTER_PROJECT_NAME
-    BoardGameAIMasterProject
+set(CMAKE_CXX_FLAGS "-Wall -Werror -g -ggdb")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fsanitize=address -fno-omit-frame-pointer -static-libasan")
+
+set(PROJECT_NAME
+    RepeatGameProject
 )
-set(MASTER_PROJECT_SOURCE_DIR
+set(LIBRARY_NAME
+    RepeatGame
+)
+set(LIBRARY_HEADERS_DIR
+    include
+)
+set(LIBRARY_HEADERS
+    ${LIBRARY_HEADERS_DIR}/BoardGame.h
+    ${LIBRARY_HEADERS_DIR}/BoardGameAI.h
+    ${LIBRARY_HEADERS_DIR}/MoveList.h
+    ${LIBRARY_HEADERS_DIR}/MovePicker.h
+	${LIBRARY_HEADERS_DIR}/SmartVector.h
+	${LIBRARY_HEADERS_DIR}/StaticVector.h
+	${LIBRARY_HEADERS_DIR}/StatusUpdate.h
+    ${LIBRARY_HEADERS_DIR}/TTableReplaceByDepth.h
+    ${LIBRARY_HEADERS_DIR}/TTEntry.h
+    ${LIBRARY_HEADERS_DIR}/types.h
+)
+set(LIBRARY_SOURCE_DIR
     src
 )
-set(MASTER_PROJECT_LIBRARIES_DIR
-    libs
-)
-set(MASTER_PROJECT_LIBRARIES 
-    BoardGames
-    BoardGameAI
-    Catch
-)
-set(MASTER_PROJECT_EXECUTABLES
-	BoardGameConsoleApp
-	BoardGameAIBenchmark
+set(LIBRARY_SOURCE
+    ${LIBRARY_SOURCE_DIR}/repeat_game.cpp
 )
 
+project(${PROJECT_NAME})
 
-project(${MASTER_PROJECT_NAME})
+set(CMAKE_CXX_STANDARD 17)
 
-if (WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GS-")	#disable security cookies
-endif()
+add_executable(${LIBRARY_NAME}
+    ${LIBRARY_HEADERS}
+    ${LIBRARY_SOURCE}
+)
 
+target_include_directories(${LIBRARY_NAME} PUBLIC include)
 
-#########
-# Test #
-#########
-enable_testing()
+#target_include_directories(${LIBRARY_NAME} PRIVATE
+#    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${LIBRARY_NAME}>
+#    $<INSTALL_INTERFACE:include/${LIBRARY_NAME}>
+#)
 
-###########
-# Project #
-###########
-foreach(EXECUTABLE ${MASTER_PROJECT_EXECUTABLES})
-    add_subdirectory("${MASTER_PROJECT_SOURCE_DIR}/${EXECUTABLE}")
-endforeach(EXECUTABLE)
+#target_include_directories(${LIBRARY_NAME} PUBLIC
+#    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#    $<INSTALL_INTERFACE:include>
+#)
 
-foreach(LIBRARY ${MASTER_PROJECT_LIBRARIES})
-    add_subdirectory("${MASTER_PROJECT_LIBRARIES_DIR}/${LIBRARY}")
-endforeach(LIBRARY)
+#add_subdirectory(test)

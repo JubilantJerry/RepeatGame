@@ -16,10 +16,10 @@ template<class AIType>
 class MovePickerBase
 {
 protected:
-	typename typedef AIType::AIGameType GameType;
+	typedef typename AIType::AIGameType GameType;
 	MovePickerBase(const AIType& ai, GameType* game) : ai(ai), game(game) {}
-	GameType* game;
 	const AIType& ai;
+	GameType* game;
 	static const int MOVE_NONE = GameType::noMoveValue();
 };
 
@@ -31,7 +31,7 @@ class MovePickerHandling<AIType, true> : public MovePickerBase<AIType>
 {
 	//Static Move evaluation by sorting moves according to given value
 protected:
-	typename typedef AIType::AIGameType GameType;
+	typedef typename AIType::AIGameType GameType;
 	typename GameType::Moves::iterator moveIter;
 	typename GameType::Moves::iterator moveEndIter;
 	typename GameType::Moves moves;
@@ -43,8 +43,8 @@ protected:
 		moveEndIter = moves.data()->end();
 		STATIC_IF(COUNTERMOVE_ENABLED(AIType::AIOptions))
 		{
-			Move counterMove = ai.counterMove[game->mapLastMoveToCounterMoveState()];
-			if (counterMove != MOVE_NONE)
+			Move counterMove = this->ai.counterMove[game->mapLastMoveToCounterMoveState()];
+			if (counterMove != this->MOVE_NONE)
 			{
 				for (auto it = moves.data()->begin(); it != moves.data()->end(); ++it)
 				{
@@ -64,7 +64,7 @@ template<class AIType>
 class MovePickerHandling<AIType, false> : public MovePickerBase<AIType>
 {
 protected:
-	typename typedef AIType::AIGameType GameType;
+	typedef typename AIType::AIGameType GameType;
 	typename GameType::MoveGenerator moveGenerator;
 	MovePickerHandling(const AIType& ai, GameType* game) : MovePickerBase<AIType>(ai, game) {}
 	void initialize(const GameType* game)
@@ -83,26 +83,26 @@ public:
 	MovePicker(const AIType& ai, GameType* game, Move ttMove) : MovePickerHandling<AIType, AIType::AIGameType::STATIC_EVALUATION>(ai, game),
 		ttMove(ttMove)
 	{
-		state = (ttMove == MOVE_NONE ? GENERATE_MOVES : TTMOVE);
+		state = (ttMove == this->MOVE_NONE ? GENERATE_MOVES : TTMOVE);
 	}
 
 	~MovePicker() {};
 	template<bool o = AIType::AIGameType::STATIC_EVALUATION, std::enable_if_t<o>* = nullptr>
 	Move pick_best()
 	{
-		if (moveIter != moveEndIter)
+		if (this->moveIter != this->moveEndIter)
 		{
-			auto begin = moveIter++;
-			std::swap(*begin, *std::max_element(begin, moveEndIter, [](ExtMove a, ExtMove b) { return a.value < b.value; }));
+			auto begin = this->moveIter++;
+			std::swap(*begin, *std::max_element(begin, this->moveEndIter, [](ExtMove a, ExtMove b) { return a.value < b.value; }));
 			return begin->move;
 		}
-		return MOVE_NONE;
+		return this->MOVE_NONE;
 	}
 	
 	template<bool o = AIType::AIGameType::STATIC_EVALUATION, std::enable_if_t<!o>* = nullptr>
 	constexpr Move pick_best()
 	{
-		return moveGenerator.nextMove();
+		return this->moveGenerator.nextMove();
 	}
 
 	Move nextMove()
@@ -114,10 +114,10 @@ public:
 			state = GENERATE_MOVES;
 			return ttMove;
 		case GENERATE_MOVES:
-			initialize(game);
+			this->initialize(this->game);
 			state = MOVELIST;
 		case MOVELIST:
-			while ((move = pick_best()) != MOVE_NONE)
+			while ((move = pick_best()) != this->MOVE_NONE)
 			{
 				if (move != ttMove)
 				{
@@ -126,7 +126,7 @@ public:
 			}
 			break;
 		}
-		return MOVE_NONE;
+		return this->MOVE_NONE;
 	}
 
 private:

@@ -43,7 +43,7 @@ private:
 	StatusUpdate *statsUpdate;
 
 	//history table
-	unsigned int counterMove[GameType::counterMoveStates()];
+	std::vector<unsigned int> counterMove;
 
 	void initializeSearch()
 	{
@@ -54,7 +54,8 @@ private:
 		}
 		STATIC_IF(COUNTERMOVE_ENABLED(options))
 		{
-			memset(this->counterMove, MOVE_NONE, sizeof(this->counterMove));
+			counterMove = std::vector<unsigned int>(
+				GameType::counterMoveStates(), MOVE_NONE);
 		}
 	}
 
@@ -268,7 +269,7 @@ private:
 	}
 
 public:
-	typedef typename GameType AIGameType;
+	typedef GameType AIGameType;
 	static const int AIOptions = options;
 
 	template<int o = options, std::enable_if_t<UPDATE_STATUS_ENABLED(o)>* = nullptr>
