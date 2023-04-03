@@ -223,6 +223,18 @@ public:
         *ptNumberUpper = kMaxVal + 1 - *ptNumberUpper;
     }
 
+    static bool containsBonus(int16_t eval) {
+        if (eval < 0) eval = -eval;
+        eval -= 1;
+        uint32_t ptNumberUpper = eval;
+        ptNumberUpper = ptNumberUpper << kEvalShift;
+        uint32_t bias = 1;
+        bias = (bias << kEvalShift) - 1;
+        uint32_t bonus = (
+            (kMaxVal + 1 + bias) >> kEvalShift) << kEvalShift;
+        return ptNumberUpper > bonus;
+    }
+
     constexpr static int counterMoveStates_impl() {
         return kMaxVal + 1;
     }
@@ -290,6 +302,7 @@ using RepeatGame = RepeatGameExt<kGameMaxVal, kGameTrackP1, 10, false>;
 int main() {
     std::shared_ptr<RepeatGame> game =
         std::shared_ptr<RepeatGame>(new RepeatGame());
+    game->setFavorWinsInEval(true);
     auto ai = AIBuilder<RepeatGame>{}
         .iterativeDeepening().useTTable<kSolverTtSizeMb>().create();
     SearchResult result = ai.search(game, kGameMaxDepth);
@@ -305,6 +318,8 @@ int main() {
     bool enoughDepth = static_cast<uint32_t>(result.depth) < kGameMaxDepth;
     std::cout << std::boolalpha << "Used enough depth: "
         << enoughDepth << std::endl;
+    std::cout << std::boolalpha << "Game end: "
+        << game->containsBonus(result.value) << std::endl;
     std::cout << std::boolalpha << pt << " == loser: "
         << (kGameTrackP1 != advantage) << std::endl;
     uint32_t ptNextUpper = RepeatGame::largestNext(ptNumberUpper);
